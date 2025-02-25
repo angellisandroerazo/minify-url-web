@@ -14,7 +14,7 @@
     </MudAlert>
     <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Disabled="@loading">
             <MudTextField Variant="Variant.Outlined" T="string" Label="Short Code" Required="true" RequiredError="Short Code is required!" HelperText="Required" @bind-Value="shortCode" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async () => await Submit()" Disabled="@(!success)" Class="ml-auto">View original url</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async () => await Submit()" Disabled="@(!success)" Class="ml-auto">View stats</MudButton>
     </MudForm>
     @if (result != null)
     {

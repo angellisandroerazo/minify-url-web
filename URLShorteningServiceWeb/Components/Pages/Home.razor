@@ -5,7 +5,6 @@
 @using UrlShorteningServiceWeb.Models
 @using UrlShorteningServiceWeb.Services
 @inject UrlService urlService
-@inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
 
 
@@ -28,7 +27,6 @@
                 {
                     <MudField Label="Short URL" Variant="Variant.Outlined" Class="d-flex justify-content-between">
                     <MudLink Href="@text" Target="_blank">@text</MudLink>
-                        <MudIconButton Icon="@Icons.Material.Filled.FileCopy" OnClick="async () => await CopyTextToClipboard()" />
                     </MudField>
                 }
             </div>
@@ -52,10 +50,5 @@
         text = $"{result.url}";
         loading = false;
         StateHasChanged();
-    }
-
-    private async Task CopyTextToClipboard()
-    {
-        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
     }
 }

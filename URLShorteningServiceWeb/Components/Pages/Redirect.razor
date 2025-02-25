@@ -13,7 +13,7 @@
 
     [Parameter] public required string ShortCode { get; set; }
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         result = await urlService.OriginalUrl(ShortCode);
 
