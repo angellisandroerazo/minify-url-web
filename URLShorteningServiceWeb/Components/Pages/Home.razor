@@ -1,0 +1,61 @@
+﻿@using System.Text.Json
+@using System.Text
+@using System.Net.Http
+@using Microsoft.Extensions.Configuration
+@using UrlShorteningServiceWeb.Models
+@using UrlShorteningServiceWeb.Services
+@inject UrlService urlService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+    <MudContainer MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h3" Class="mt-5 mb-2 p-2">MinifyURL</MudText>
+    <MudText Typo="Typo.body1" Class="mb-5">Tool to shorten URLs and generate short links. Allows to create a shortened link making it easy to share.</MudText>
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Disabled="@loading">        
+            <MudTextField Variant="Variant.Outlined" T="string" Label="URL" Required="true" RequiredError="URL is required!" HelperText="Required" @bind-Value="url" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async () => await Submit()" Disabled="@(!success)" Class="ml-auto">Shorten URL</MudButton>
+        </MudForm>
+        @if (result != null)
+        {
+            <div class="mb-5 mt-2 d-flex flex-column gap-3">
+                <Message message="@result.message" type="@result.type" />
+                @if (result.type == TypeResult.Success)
+                {
+                    <MudField Label="Short URL" Variant="Variant.Outlined" Class="d-flex justify-content-between">
+                    <MudLink Href="@text" Target="_blank">@text</MudLink>
+                        <MudIconButton Icon="@Icons.Material.Filled.FileCopy" OnClick="async () => await CopyTextToClipboard()" />
+                    </MudField>
+                }
+            </div>
+        }
+    </MudContainer>
+
+@code {
+    private bool success;
+    private string[] errors = { };
+    private string? url;
+    private Result? result = null;
+    MudForm? form;
+    private string? text;
+    private bool loading = false;
+
+    private async Task Submit()
+    {
+        loading = true;
+        var baseUrl = urlService.HostBaseUrl();
+        result = await urlService.ShortenUrl(url ?? "");
+        text = $"{result.url}";
+        loading = false;
+        StateHasChanged();
+    }
+
+    private async Task CopyTextToClipboard()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    }
+}

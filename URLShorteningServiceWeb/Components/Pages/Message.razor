@@ -1,0 +1,18 @@
+﻿@using UrlShorteningServiceWeb.Models
+
+<MudAlert Severity="@severity" Variant="Variant.Filled">
+    @message
+</MudAlert>
+
+@code {
+    [Parameter] public required string message { get; set; } = "";
+    [Parameter] public required TypeResult type { get; set; } = TypeResult.Info;
+
+    private Severity severity => type switch
+    {
+        TypeResult.Success => Severity.Success,
+        TypeResult.Error => Severity.Error,
+        TypeResult.Warning => Severity.Warning,
+        _ => Severity.Info
+    };
+}

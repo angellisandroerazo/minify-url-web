@@ -1,0 +1,28 @@
+﻿@using UrlShorteningServiceWeb.Services
+@using UrlShorteningServiceWeb.Models
+@using UrlShorteningServiceWeb.Components.Layout
+@inject NavigationManager Navigation
+@inject UrlService urlService
+
+
+@page "/{shortCode}"
+@layout EmptyLayout
+
+@code {
+    private Result? result = null;
+
+    [Parameter] public required string ShortCode { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        result = await urlService.OriginalUrl(ShortCode);
+
+        @if (result.type == TypeResult.Success)
+        {
+            Navigation.NavigateTo(result.message, true);
+        }
+        else{
+            Navigation.NavigateTo("/error-url");
+        }
+    }
+}

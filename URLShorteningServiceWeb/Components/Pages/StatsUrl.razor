@@ -1,0 +1,50 @@
+﻿@using UrlShorteningServiceWeb.Models;
+@using UrlShorteningServiceWeb.Services;
+@inject UrlService urlService
+
+@page "/stats-url"
+
+<PageTitle>Stats URL</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h3" Class="mt-5 mb-2 p-2">Stats URL</MudText>
+    <MudText Typo="Typo.body1" Class="mb-2">Check how many times your shortened URL has been accessed.</MudText>
+    <MudAlert Severity="Severity.Normal" NoIcon="true" Variant="Variant.Filled" Class="mb-4">
+        Paste the short code from your shortened URL. For example, if your link is @baseUrl, enter z30wjr-8 below.
+    </MudAlert>
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Disabled="@loading">
+            <MudTextField Variant="Variant.Outlined" T="string" Label="Short Code" Required="true" RequiredError="Short Code is required!" HelperText="Required" @bind-Value="shortCode" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async () => await Submit()" Disabled="@(!success)" Class="ml-auto">View original url</MudButton>
+    </MudForm>
+    @if (result != null)
+    {
+        <div class="mb-5 mt-2 d-flex flex-column gap-3">
+            <Message message="@result.message" type="@result.type" />
+        </div>
+    }
+</MudContainer>
+
+
+
+@code {
+    private bool success;
+    private string[] errors = { };
+    private string? shortCode;
+    private Result? result = null;
+    MudForm? form;
+    private bool loading = false;
+    private string baseUrl = "";
+
+    protected override void OnInitialized()
+    {
+        baseUrl = $"{urlService.HostBaseUrl()}/z30wjr-8";
+    }
+    private async Task Submit()
+    {
+        loading = true;
+        result = await urlService.StatsUrl(shortCode ?? "");
+        loading = false;
+        StateHasChanged();
+    }
+}
+

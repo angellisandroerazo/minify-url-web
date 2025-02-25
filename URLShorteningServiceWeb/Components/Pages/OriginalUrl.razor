@@ -1,0 +1,66 @@
+﻿@using UrlShorteningServiceWeb.Models;
+@using UrlShorteningServiceWeb.Services;
+@inject UrlService urlService
+@inject IJSRuntime JSRuntime
+
+@page "/original-url"
+
+<PageTitle>Original URL</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h3" Class="mt-5 mb-2 p-2">Original URL</MudText>
+    <MudText Typo="Typo.body1" Class="mb-2">Get the long URL.</MudText>
+    <MudAlert Severity="Severity.Normal" NoIcon="true" Variant="Variant.Filled" Class="mb-4">
+        Paste the short code from your shortened URL. For example, if your link is @baseUrl, enter z30wjr-8 below.
+    </MudAlert>
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" Disabled="@loading">
+        <MudTextField Variant="Variant.Outlined" T="string" Label="Short Code" Required="true" RequiredError="Short Code is required!" HelperText="Required" @bind-Value="shortCode" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="async () => await Submit()" Disabled="@(!success)" Class="ml-auto">View original url</MudButton>
+    </MudForm>
+    @if (result != null)
+    {
+        <div class="mb-5 mt-2 d-flex flex-column gap-3">
+            <Message message="@result.message" type="@result.type" />
+            @if (result.type == TypeResult.Success)
+            {
+                <MudField Label="Original URL" Variant="Variant.Outlined" Class="d-flex justify-content-between">
+                    <MudLink Href="@text" Target="_blank">@text</MudLink>
+                    <MudIconButton Icon="@Icons.Material.Filled.FileCopy" OnClick="async () => await CopyTextToClipboard()" />
+                </MudField>
+            }
+        </div>
+    }
+</MudContainer>
+
+
+
+@code {
+    private bool success;
+    private string[] errors = { };
+    private string? shortCode;
+    private Result? result = null;
+    MudForm? form;
+    private string? text;
+    private bool loading = false;
+    private string baseUrl = "";
+
+    protected override void OnInitialized()
+    {
+        baseUrl = $"{urlService.HostBaseUrl()}/z30wjr-8";
+    }
+
+    private async Task Submit()
+    {
+        loading = true;
+        result = await urlService.OriginalUrl(shortCode ?? "");
+        text = result?.message;
+        loading = false;
+        StateHasChanged();
+    }
+
+    private async Task CopyTextToClipboard()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    }
+}
+
